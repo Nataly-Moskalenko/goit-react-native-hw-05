@@ -66,6 +66,14 @@ export function ButtonLogOut({ onPress }) {
   );
 }
 
+export function ButtonCamera({ onPress }) {
+  return (
+    <Pressable onPress={onPress}>
+      <Icon name="camera" size={24} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   button: {
     height: 50,

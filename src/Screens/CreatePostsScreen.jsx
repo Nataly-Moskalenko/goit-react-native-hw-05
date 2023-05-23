@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { ButtonPublishActive, ButtonPublishInactive, ButtonDeletePost } from '../Components/Button';
 import { useNavigation } from '@react-navigation/native';
@@ -6,24 +6,18 @@ import { LocationIcon } from '../../assets/SvgIcons';
 
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
-import { getLocales, Localization } from 'expo-localization';
+// import { getLocales } from 'expo-localization';
+import * as Location from 'expo-location';
 
 export default function CreatePostsScreen() {
   const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
+  const [locationName, setLocationName] = useState('');
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
-
-  function toggleCameraType() {
-    setType((current) =>
-      current === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
-    );
-  }
+  const [location, setLocation] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -33,6 +27,30 @@ export default function CreatePostsScreen() {
       setHasPermission(status === 'granted');
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      setLocation(coords);
+    })();
+  }, [imageUri]);
+
+  function toggleCameraType() {
+    setType((current) =>
+      current === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+  }
 
   if (hasPermission === null) {
     return <View />;
@@ -80,25 +98,20 @@ export default function CreatePostsScreen() {
         {LocationIcon}
         <TextInput
           placeholder="Location"
-          onChangeText={(newLocation) => setLocation(newLocation)}
-          value={location}
+          onChangeText={(newLocationName) => setLocationName(newLocationName)}
+          value={locationName}
           style={styles.inputLocation}
         />
       </View>
-      {!imageUri && (
-        <ButtonPublishInactive disabled={true}
-          // onPress={() => {           
-          //   console.log(getLocales()[0].regionCode);
-          // }}
-        />
-      )}
+      {!imageUri && <ButtonPublishInactive disabled={true} />}
       {imageUri && (
         <ButtonPublishActive
-          onPress={() => {           
+          onPress={() => {
             setImageUri(null);
             setName('');
-            setLocation('');
-            console.log(getLocales()[0].regionCode);
+            setLocationName('');
+            // console.log(getLocales()[0].regionCode);
+            console.log(location);
             navigation.navigate('PostsScreen');
           }}
         />
@@ -108,7 +121,7 @@ export default function CreatePostsScreen() {
           onPress={() => {
             setImageUri(null);
             setName('');
-            setLocation('');
+            setLocationName('');
             navigation.navigate('PostsScreen');
           }}
         />
@@ -176,9 +189,6 @@ const styles = StyleSheet.create({
   camera: {
     width: '100%',
     height: 240,
-    // borderRadius: 8,
-    // borderColor: '#E8E8E8',
-    // borderWidth: 1,
     marginTop: 32,
     marginBottom: 8,
   },
@@ -186,16 +196,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     justifyContent: 'center',
-    // alignItems: 'center',
-    // width: '100%',
-    // height: 240,
-    // borderRadius: 8,
   },
 
-  flipContainer: {
-    // flex: 0.1,
-    alignSelf: 'flex-end',
-  },
+  flipContainer: { alignSelf: 'flex-end' },
 
   button: { alignSelf: 'center' },
 
