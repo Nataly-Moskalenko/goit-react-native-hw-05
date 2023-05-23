@@ -112,7 +112,7 @@ export default function CreatePostsScreen() {
             setLocationName('');
             // console.log(getLocales()[0].regionCode);
             console.log(location);
-            navigation.navigate('PostsScreen');
+            navigation.navigate('PostsScreen', { imageUri, location, name, locationName });
           }}
         />
       )}

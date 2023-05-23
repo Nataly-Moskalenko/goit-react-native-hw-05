@@ -2,8 +2,12 @@ import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { CommentWhiteIcon, LocationIcon } from '../../assets/SvgIcons';
 import { useNavigation } from '@react-navigation/native';
 
-export default function PostsScreen() {
+export default function PostsScreen({ route }) {
   const navigation = useNavigation();
+  const imageUri = route.params ? route.params.imageUri : null;
+  const location = route.params ? route.params.location : null;
+  const name = route.params ? route.params.name : null;
+  const locationName = route.params ? route.params.locationName : null;
 
   return (
     <View style={styles.container}>
@@ -14,25 +18,27 @@ export default function PostsScreen() {
           <Text style={styles.userEmail}>email@example.com</Text>
         </View>
       </View>
-      <View style={styles.post}>
-        <Image style={styles.postPhoto} />
-        <Text style={styles.postName}>Name</Text>
-        <View style={styles.postWrapper}>
-          <View style={styles.comment}>
-            <Pressable onPress={() => navigation.navigate('CommentsScreen')}>
-              <View>{CommentWhiteIcon}</View>
-            </Pressable>
-            <Text>Comment</Text>
-          </View>
+      {route.params && (
+        <View style={styles.post}>
+          <Image source={{ uri: imageUri }} style={styles.postPhoto} />          
+          <Text style={styles.postName}>{name}</Text>
+          <View style={styles.postWrapper}>
+            <View style={styles.comment}>
+              <Pressable onPress={() => navigation.navigate('CommentsScreen')}>
+                <View>{CommentWhiteIcon}</View>
+              </Pressable>
+              <Text>Comment</Text>
+            </View>
 
-          <View style={styles.location}>
-          <Pressable onPress={() => navigation.navigate('MapScreen')}>
-              <View>{LocationIcon}</View>
-            </Pressable>
-            <Text>Location</Text>
+            <View style={styles.location}>
+              <Pressable onPress={() => navigation.navigate('MapScreen', { location })}>
+                <View>{LocationIcon}</View>
+              </Pressable>
+              <Text>{locationName}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
