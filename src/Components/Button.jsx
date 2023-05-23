@@ -18,10 +18,18 @@ export function ButtonLogin({ onPress }) {
   );
 }
 
-export function ButtonPublish({ onPress }) {
+export function ButtonPublishActive({ onPress }) {
   return (
     <Pressable style={styles.button} onPress={onPress}>
       <Text style={styles.text}>Publish</Text>
+    </Pressable>
+  );
+}
+
+export function ButtonPublishInactive({ onPress }) {
+  return (
+    <Pressable style={styles.buttonInactive} onPress={onPress}>
+      <Text style={styles.textInactive}>Publish</Text>
     </Pressable>
   );
 }
@@ -45,15 +53,15 @@ export function ButtonMoveToSignup({ onPress }) {
 export function ButtonDeletePost({ onPress }) {
   return (
     <Pressable onPress={onPress}>
-        <Icon name="trash-2" size={24} />      
+      <Icon name="trash-2" size={24} />
     </Pressable>
   );
 }
 
-export function ButtonLogOut({ onPress}) {
+export function ButtonLogOut({ onPress }) {
   return (
-    <Pressable onPress={onPress}>    
-     <Icon name="log-out" size={24} />
+    <Pressable onPress={onPress}>
+      <Icon name="log-out" size={24} />
     </Pressable>
   );
 }
@@ -66,16 +74,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonInactive: {
+    height: 50,
+    borderRadius: 100,
+    backgroundColor: '#F6F6F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: {
     fontSize: 16,
     lineHeight: 19,
     color: 'white',
     fontWeight: 'bold',
-  },  
+  },
   textMoveTo: {
     fontSize: 16,
     lineHeight: 19,
     color: '#1B4371',
     fontWeight: 'bold',
+  },
+  textInactive: {
+    color: '#BDBDBD',
   },
 });

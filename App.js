@@ -9,6 +9,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import RegistrationScreen from './src/Screens/RegistrationScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import HomeScreen from './src/Screens/HomeScreen';
+import CommentsScreen from './src/Screens/CommentsScreen';
+import MapScreen from './src/Screens/MapScreen';
 
 // key=API_KEY
 // AIzaSyCLuOsIsAWcS8KuTSEyluVh_Z0WpCrNckc
@@ -42,6 +44,16 @@ export default function App() {
           name="HomeScreen"
           component={HomeScreen}
         />
+        <MainStack.Screen
+          options={{ title: 'Comments', headerTitleAlign: 'center' }}
+          name="CommentsScreen"
+          component={CommentsScreen}
+        />
+        <MainStack.Screen
+          options={{ title: 'Map', headerTitleAlign: 'center' }}
+          name="MapScreen"
+          component={MapScreen}
+        />
       </MainStack.Navigator>
 
       <StatusBar style="auto" />
@@ -59,5 +71,3 @@ export default function App() {
 // });
 
 // { fontFamily: 'Inter-Black', fontSize: 30 }
-
-

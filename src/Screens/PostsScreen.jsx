@@ -1,7 +1,10 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { CommentWhiteIcon, LocationIcon } from '../../assets/SvgIcons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function PostsScreen() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={styles.user}>
@@ -15,12 +18,17 @@ export default function PostsScreen() {
         <Image style={styles.postPhoto} />
         <Text style={styles.postName}>Name</Text>
         <View style={styles.postWrapper}>
-          <View style={styles.comment}>           
-            {CommentWhiteIcon}
+          <View style={styles.comment}>
+            <Pressable onPress={() => navigation.navigate('CommentsScreen')}>
+              <View>{CommentWhiteIcon}</View>
+            </Pressable>
             <Text>Comment</Text>
           </View>
+
           <View style={styles.location}>
-            {LocationIcon}
+          <Pressable onPress={() => navigation.navigate('MapScreen')}>
+              <View>{LocationIcon}</View>
+            </Pressable>
             <Text>Location</Text>
           </View>
         </View>

@@ -1,17 +1,74 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
-import { ButtonPublish, ButtonDeletePost } from '../Components/Button';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import { ButtonPublishActive, ButtonPublishInactive, ButtonDeletePost } from '../Components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { LocationIcon } from '../../assets/SvgIcons';
+
+import { Camera } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
+import { getLocales, Localization } from 'expo-localization';
 
 export default function CreatePostsScreen() {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const navigation = useNavigation();
+  const [hasPermission, setHasPermission] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
+  const [type, setType] = useState(Camera.Constants.Type.back);
+
+  function toggleCameraType() {
+    setType((current) =>
+      current === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+  }
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync();
+
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+  const takePicture = async () => {
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      console.log(uri);
+      setImageUri(uri);
+      // await MediaLibrary.createAssetAsync(uri);
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      return asset;
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Image style={styles.postPhoto} />
+      {!imageUri && (
+        <Camera style={styles.camera} type={type} ref={setCameraRef}>
+          <View style={styles.photoView}>
+            <TouchableOpacity style={styles.button} onPress={takePicture}>
+              <View style={styles.takePhotoOut}>
+                <View style={styles.takePhotoInner}></View>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.flipContainer} onPress={toggleCameraType}>
+            <Text style={{ fontSize: 18, marginBottom: 10, color: 'white' }}> Flip </Text>
+          </TouchableOpacity>
+        </Camera>
+      )}
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.postPhoto} />}
       <Text style={styles.text}>Upload photo</Text>
       <TextInput
         placeholder="Name..."
@@ -28,10 +85,33 @@ export default function CreatePostsScreen() {
           style={styles.inputLocation}
         />
       </View>
-
-      <ButtonPublish onPress={() => navigation.navigate('PostsScreen')} />
+      {!imageUri && (
+        <ButtonPublishInactive disabled={true}
+          // onPress={() => {           
+          //   console.log(getLocales()[0].regionCode);
+          // }}
+        />
+      )}
+      {imageUri && (
+        <ButtonPublishActive
+          onPress={() => {           
+            setImageUri(null);
+            setName('');
+            setLocation('');
+            console.log(getLocales()[0].regionCode);
+            navigation.navigate('PostsScreen');
+          }}
+        />
+      )}
       <View style={styles.delete}>
-        <ButtonDeletePost onPress={() => navigation.navigate('PostsScreen')} />
+        <ButtonDeletePost
+          onPress={() => {
+            setImageUri(null);
+            setName('');
+            setLocation('');
+            navigation.navigate('PostsScreen');
+          }}
+        />
       </View>
     </View>
   );
@@ -50,7 +130,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 240,
     borderRadius: 8,
-    backgroundColor: '#F6F6F6',
     borderColor: '#E8E8E8',
     borderWidth: 1,
     marginTop: 32,
@@ -75,8 +154,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   delete: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 32,
+    justifyContent: 'flex-end',
+    marginBottom: 22,
   },
   location: {
     flexDirection: 'row',
@@ -87,13 +168,54 @@ const styles = StyleSheet.create({
   },
   inputLocation: {
     height: 50,
-    // padding: 16,
-    // borderBottomWidth: 1,
-    // marginBottom: 24,
     // fontFamily: 'Roboto',
     fontSize: 16,
     lineHeight: 19,
     color: '#212121',
-    // borderBottomColor: '#E8E8E8',
+  },
+  camera: {
+    width: '100%',
+    height: 240,
+    // borderRadius: 8,
+    // borderColor: '#E8E8E8',
+    // borderWidth: 1,
+    marginTop: 32,
+    marginBottom: 8,
+  },
+  photoView: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    // alignItems: 'center',
+    // width: '100%',
+    // height: 240,
+    // borderRadius: 8,
+  },
+
+  flipContainer: {
+    // flex: 0.1,
+    alignSelf: 'flex-end',
+  },
+
+  button: { alignSelf: 'center' },
+
+  takePhotoOut: {
+    borderWidth: 2,
+    borderColor: 'white',
+    height: 50,
+    width: 50,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+  },
+
+  takePhotoInner: {
+    borderWidth: 2,
+    borderColor: 'white',
+    height: 40,
+    width: 40,
+    backgroundColor: 'white',
+    borderRadius: 50,
   },
 });

@@ -4,7 +4,7 @@ export default function CommentsScreen() {
   return (
     <View style={styles.container}>
       <Image style={styles.postPhoto} />
-      {/* <Text style={styles.text}>Upload photo</Text> */}
+      <Text style={styles.text}>Comments</Text>
     </View>
   );
 }
